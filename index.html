@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#0b3a73" />
+    <title>Hammer Golf — Wrecking Balls. Perfect Shots.</title>
+    <meta
+      name="description"
+      content="Hammer Golf is a free mobile golf game with no ads. Smash your way through stunning tropical island courses with the hammer and climb the global leaderboard."
+    />
+
+    <meta property="og:title" content="Hammer Golf" />
+    <meta property="og:description" content="Wrecking balls. Perfect shots. 100% free. No ads." />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="assets/hero.png" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bangers&family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+
+    <link rel="icon" type="image/png" href="assets/icon-hammer.png" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <!-- ============== HEADER ============== -->
+    <header class="site-header" id="top">
+      <div class="container header-inner">
+        <nav class="primary-nav" aria-label="Primary">
+          <ul>
+            <li><a href="#top">Home</a></li>
+            <li><a href="#features">Features</a></li>
+            <li><a href="#courses">Courses</a></li>
+            <li><a href="#about">About</a></li>
+          </ul>
+        </nav>
+
+        <a href="https://apps.apple.com/app/6762349301" target="_blank" rel="noopener" class="btn btn-cta btn-cta--sm">Play Now</a>
+
+        <button
+          class="nav-toggle"
+          aria-label="Open menu"
+          aria-expanded="false"
+          aria-controls="mobile-nav"
+        >
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+
+      <nav id="mobile-nav" class="mobile-nav" aria-label="Mobile">
+        <ul>
+          <li><a href="#top">Home</a></li>
+          <li><a href="#features">Features</a></li>
+          <li><a href="#courses">Courses</a></li>
+          <li><a href="#about">About</a></li>
+          <li><a href="https://apps.apple.com/app/6762349301" target="_blank" rel="noopener" class="btn btn-cta btn-cta--sm">Play Now</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main id="main">
+      <!-- ============== HERO ============== -->
+      <section class="hero">
+        <div class="hero-media" aria-hidden="true">
+          <img src="assets/hero.png" alt="" />
+          <div class="hero-overlay"></div>
+        </div>
+
+        <div class="container hero-inner">
+          <p class="hero-tagline">IT'S HAMMER GOLF TIME!</p>
+          <a href="https://apps.apple.com/app/6762349301" target="_blank" rel="noopener" class="btn btn-cta btn-cta--lg">Play Now</a>
+        </div>
+      </section>
+
+      <!-- ============== FEATURES ============== -->
+      <section id="features" class="section section-features">
+        <div class="container">
+          <header class="section-head">
+            <h2><span class="rule"></span>Smash your way to victory<span class="rule"></span></h2>
+          </header>
+
+          <ul class="feature-grid">
+            <li class="feature-card">
+              <div class="feature-icon">
+                <img src="assets/icon-no-ads.png" alt="" />
+              </div>
+              <h3>No ads. 100% free.</h3>
+              <p>Enjoy unlimited fun with no ads and no DLC.</p>
+            </li>
+            <li class="feature-card">
+              <div class="feature-icon">
+                <img src="assets/icon-hammer.png" alt="" />
+              </div>
+              <h3>Destruction awaits</h3>
+              <p>Destructible environments meets unstoppable hammer.</p>
+            </li>
+            <li class="feature-card">
+              <div class="feature-icon">
+                <img src="assets/icon-courses.png" alt="" />
+              </div>
+              <h3>iPhone & iPad</h3>
+              <p>Tee off on both your phone and tablet. Android coming soon!</p>
+            </li>
+            <li class="feature-card">
+              <div class="feature-icon">
+                <img src="assets/icon-trophy.png" alt="" />
+              </div>
+              <h3>Climb the leaderboard</h3>
+              <p>Compete with players worldwide and beat your personal best on every hole.</p>
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ============== SCREENSHOTS / VIDEO ============== -->
+      <section id="courses" class="section section-courses">
+        <div class="container">
+          <header class="section-head">
+            <h2><span class="rule"></span>Explore stunning courses<span class="rule"></span></h2>
+          </header>
+
+          <div class="courses-carousel" data-carousel>
+            <button class="carousel-arrow carousel-arrow--prev" data-prev aria-label="Previous screenshot">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M15 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+
+            <div class="courses-track" data-track>
+              <div class="shot-card">
+                <div class="shot-frame">
+                  <video
+                    class="shot-media"
+                    src="assets/gameplay.mp4"
+                    autoplay
+                    muted
+                    loop
+                    playsinline
+                    preload="metadata"
+                    poster="assets/screenshot-island.png"
+                    aria-label="Hammer Golf gameplay video"
+                  ></video>
+                </div>
+              </div>
+
+              <div class="shot-card">
+                <div class="shot-frame">
+                  <img class="shot-media" src="assets/screenshot-trajectory.png" alt="Aiming a shot across the cliffs" loading="lazy" />
+                </div>
+              </div>
+
+              <div class="shot-card">
+                <div class="shot-frame">
+                  <img class="shot-media" src="assets/screenshot-green.png" alt="Approaching the green from the rocks" loading="lazy" />
+                </div>
+              </div>
+
+              <div class="shot-card">
+                <div class="shot-frame">
+                  <img class="shot-media" src="assets/screenshot-holeinone.png" alt="Hole in one celebration screen" loading="lazy" />
+                </div>
+              </div>
+
+              <div class="shot-card">
+                <div class="shot-frame">
+                  <img class="shot-media" src="assets/screenshot-island.png" alt="Island Hopping par 3 course preview" loading="lazy" />
+                </div>
+              </div>
+            </div>
+
+            <button class="carousel-arrow carousel-arrow--next" data-next aria-label="Next screenshot">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+          </div>
+
+          <ol class="carousel-dots" data-dots aria-label="Carousel pages"></ol>
+        </div>
+      </section>
+
+      <!-- ============== CTA / DOWNLOAD ============== -->
+      <section id="download" class="section section-cta" aria-labelledby="cta-heading">
+        <div class="cta-media" aria-hidden="true">
+          <img src="assets/cta.png" alt="" />
+          <div class="cta-overlay"></div>
+        </div>
+
+        <div class="container cta-inner">
+          <div class="cta-copy">
+            <h2 id="cta-heading">Ready to swing?</h2>
+            <p>Grab your hammer and start your legendary golf journey today!</p>
+            <a href="https://apps.apple.com/app/6762349301" target="_blank" rel="noopener" class="btn btn-cta btn-cta--lg">Play Now</a>
+
+            <div class="store-badges">
+              <span class="store-badge store-badge--soon" aria-label="Google Play — coming soon">
+                <svg viewBox="0 0 135 40" xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true">
+                  <rect width="135" height="40" rx="6" fill="#000"/>
+                  <g fill="#fff">
+                    <text x="34" y="16" font-family="Inter, Arial, sans-serif" font-size="8" font-weight="700" letter-spacing="0.5">COMING SOON</text>
+                    <text x="34" y="30" font-family="Inter, Arial, sans-serif" font-size="13" font-weight="700">Google Play</text>
+                  </g>
+                  <g transform="translate(10 9)">
+                    <path d="M.5.7C.2 1 0 1.5 0 2.1v17.8c0 .6.2 1.1.5 1.4l11.1-10.6L.5.7z" fill="#5BC9F4"/>
+                    <path d="M.5.7L11.6 10.7l3.2-3.1L2.4 0C1.7-.3 1 .1.5.7z" fill="#62E68C"/>
+                    <path d="M14.8 14.4l-3.2-3.1L.5 21.3c.5.6 1.2 1 1.9.6l12.4-7.5z" fill="#EE5A5C"/>
+                    <path d="M19.7 9L14.8 6.3l-3.5 3.7 3.5 3.7L19.7 11c1.3-.7 1.3-2.6 0-3.3z" fill="#F2BF35"/>
+                  </g>
+                </svg>
+              </span>
+              <a class="store-badge" href="https://apps.apple.com/app/6762349301" target="_blank" rel="noopener" aria-label="Download on the App Store">
+                <svg viewBox="0 0 135 40" xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true">
+                  <rect width="135" height="40" rx="6" fill="#000"/>
+                  <g fill="#fff">
+                    <text x="34" y="16" font-family="Inter, Arial, sans-serif" font-size="8" font-weight="400">Download on the</text>
+                    <text x="34" y="30" font-family="Inter, Arial, sans-serif" font-size="13" font-weight="700">App Store</text>
+                  </g>
+                  <path transform="translate(9 8)" d="M16.4 12.5c0-3 2.5-4.5 2.6-4.5-1.4-2.1-3.6-2.4-4.4-2.4-1.9-.2-3.6 1.1-4.6 1.1-.9 0-2.4-1.1-4-1.1-2 0-3.9 1.2-4.9 3-2.1 3.7-.5 9 1.5 12 1 1.4 2.2 3 3.8 3 1.5-.1 2.1-1 4-1s2.4 1 4 .9c1.7 0 2.7-1.5 3.7-2.9 1.2-1.6 1.6-3.3 1.7-3.4-.1 0-3.4-1.3-3.4-5.1zM13.3 3.7c.8-1 1.4-2.5 1.3-3.9-1.3 0-2.8.8-3.7 1.9-.8.9-1.5 2.4-1.3 3.8 1.4.1 2.9-.7 3.7-1.8z" fill="#fff"/>
+                </svg>
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============== ABOUT (anchor target) ============== -->
+      <section id="about" class="section section-about">
+        <div class="container about-inner">
+          <h2>About Hammer Golf</h2>
+          <p>
+            Hammer Golf is an indie passion project that mashes a wrecking ball physics
+            sandbox with the precision of classic golf. Built by me, Elias Aalto and hopefully enjoyed by many — completely free, with zero ads and zero gotchas. Just you, the
+            hammer, and a tropical island full of perfect shots waiting to happen.
+          </p>
+        </div>
+      </section>
+    </main>
+
+    <!-- ============== FOOTER ============== -->
+    <footer class="site-footer">
+      <div class="container footer-inner">
+        <nav class="footer-nav" aria-label="Footer">
+          <ul>
+            <li><a href="#top">Home</a></li>
+            <li><a href="#features">Features</a></li>
+            <li><a href="#courses">Courses</a></li>
+            <li><a href="/privacy/">Privacy</a></li>
+            <li><a href="/licenses/">Licenses</a></li>
+          </ul>
+        </nav>
+
+        <ul class="social" aria-label="Social media">
+          <li>
+            <a href="https://www.instagram.com/hammer.golf.game/" target="_blank" rel="noopener" aria-label="Hammer Golf on Instagram">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 2.2c3.2 0 3.6 0 4.8.07 1.2.06 1.8.25 2.2.42a3.7 3.7 0 0 1 1.4.9c.4.4.7.8.9 1.4.17.4.36 1 .42 2.2.07 1.2.07 1.6.07 4.8s0 3.6-.07 4.8c-.06 1.2-.25 1.8-.42 2.2a3.7 3.7 0 0 1-.9 1.4c-.4.4-.8.7-1.4.9-.4.17-1 .36-2.2.42-1.2.07-1.6.07-4.8.07s-3.6 0-4.8-.07c-1.2-.06-1.8-.25-2.2-.42a3.7 3.7 0 0 1-1.4-.9 3.7 3.7 0 0 1-.9-1.4c-.17-.4-.36-1-.42-2.2C2.2 15.6 2.2 15.2 2.2 12s0-3.6.07-4.8c.06-1.2.25-1.8.42-2.2.2-.6.5-1 .9-1.4.4-.4.8-.7 1.4-.9.4-.17 1-.36 2.2-.42C8.4 2.2 8.8 2.2 12 2.2zm0 1.8c-3.15 0-3.52 0-4.7.07-1.1.05-1.7.23-2.1.39-.5.2-.9.45-1.3.85-.4.4-.65.8-.85 1.3-.16.4-.34 1-.39 2.1C2.6 9.9 2.6 10.3 2.6 13.5s0 3.6.06 4.7c.05 1.1.23 1.7.39 2.1.2.5.45.9.85 1.3.4.4.8.65 1.3.85.4.16 1 .34 2.1.39 1.18.07 1.55.07 4.7.07s3.52 0 4.7-.07c1.1-.05 1.7-.23 2.1-.39.5-.2.9-.45 1.3-.85.4-.4.65-.8.85-1.3.16-.4.34-1 .39-2.1.07-1.18.07-1.55.07-4.7s0-3.52-.07-4.7c-.05-1.1-.23-1.7-.39-2.1-.2-.5-.45-.9-.85-1.3-.4-.4-.8-.65-1.3-.85-.4-.16-1-.34-2.1-.39-1.18-.07-1.55-.07-4.7-.07z" fill="currentColor"/>
+                <circle cx="12" cy="12" r="3.6" fill="none" stroke="currentColor" stroke-width="1.8"/>
+                <circle cx="17.8" cy="6.3" r="1.1" fill="currentColor"/>
+              </svg>
+            </a>
+          </li>
+          <li>
+            <a href="https://www.tiktok.com/@hammergolfgame" target="_blank" rel="noopener" aria-label="Hammer Golf on TikTok">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M19.6 7.2a6.4 6.4 0 0 1-4-1.4 6.4 6.4 0 0 1-2.3-3.6h-3.2v12.2a2.7 2.7 0 1 1-2-2.6V8.5a5.9 5.9 0 1 0 5.2 5.9V9.6a9.5 9.5 0 0 0 6.3 2.3V7.2z" fill="currentColor"/>
+              </svg>
+            </a>
+          </li>
+        </ul>
+
+        <p class="footer-copy">© <span id="year"></span> Elias Aalto. All rights reserved.</p>
+      </div>
+    </footer>
+
+    <script src="script.js" defer></script>
+  </body>
+</html>
