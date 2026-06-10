@@ -1109,11 +1109,24 @@ function nudgeSelected(dx, dy) {
 }
 
 // ----------------------- Drawing -----------------------
-function resizeCanvasForDPR() {
-  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+let canvasLayoutW = 0;
+let canvasLayoutH = 0;
+
+function syncCanvasLayoutSize() {
   const r = canvas.getBoundingClientRect();
-  const w = Math.round(r.width  * dpr);
-  const h = Math.round(r.height * dpr);
+  const w = r.width;
+  const h = r.height;
+  if (Math.abs(w - canvasLayoutW) < 0.5 && Math.abs(h - canvasLayoutH) < 0.5) return false;
+  canvasLayoutW = w;
+  canvasLayoutH = h;
+  return true;
+}
+
+function resizeCanvasForDPR() {
+  if (!canvasLayoutW) syncCanvasLayoutSize();
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const w = Math.round(canvasLayoutW * dpr);
+  const h = Math.round(canvasLayoutH * dpr);
   if (canvas.width !== w || canvas.height !== h) {
     canvas.width = w;
     canvas.height = h;
@@ -1614,6 +1627,10 @@ canvas.addEventListener("pointerdown", (e) => {
 
 canvas.addEventListener("pointermove", (e) => {
   if (!state.pack) return;
+  // Touch scrolling on empty board must not run hover/coords/draw — the canvas
+  // moves under the finger and would thrash layout every frame (violent shake).
+  if (state.emptyTouch) return;
+  if (e.pointerType === "touch" && !state.draft) return;
 
   const p = logicalFromEvent(e);
   coordsEl.textContent = `${Math.round(p.x)}, ${Math.round(p.y)}`;
@@ -2144,7 +2161,19 @@ window.addEventListener("keydown", (e) => {
 });
 
 // ----------------------- Boot -----------------------
-window.addEventListener("resize", () => { if (state.pack) draw(); });
+let layoutDrawTimer = 0;
+function scheduleCanvasLayoutDraw() {
+  clearTimeout(layoutDrawTimer);
+  layoutDrawTimer = setTimeout(() => {
+    if (syncCanvasLayoutSize() && state.pack) draw();
+  }, 100);
+}
+window.addEventListener("resize", scheduleCanvasLayoutDraw);
+if (typeof ResizeObserver !== "undefined") {
+  new ResizeObserver(scheduleCanvasLayoutDraw).observe(canvas);
+} else {
+  syncCanvasLayoutSize();
+}
 window.addEventListener("beforeunload", (e) => {
   if (state.loaded && state.loaded.dirty) {
     e.preventDefault();
