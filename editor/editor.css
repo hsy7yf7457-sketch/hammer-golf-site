@@ -557,9 +557,6 @@ body[data-view="empty"] .layout { grid-template-columns: 1fr; }
   aspect-ratio: 3 / 2;
 }
 #board.tool-select {
-  /* Let the browser scroll the page when dragging empty board space on touch.
-     Object drags temporarily set touch-action:none inline in JS. */
-  touch-action: pan-x pan-y;
   cursor: default;
 }
 
