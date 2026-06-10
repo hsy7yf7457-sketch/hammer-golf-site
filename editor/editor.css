@@ -907,7 +907,26 @@ body[data-view="empty"] .layout { grid-template-columns: 1fr; }
   .layout { grid-template-columns: 220px 1fr 240px; }
 }
 @media (max-width: 900px) {
-  .layout { grid-template-columns: 1fr; grid-template-rows: auto 1fr auto; }
-  .panel { border: none; border-bottom: 1px solid var(--line); max-height: 200px; }
+  /* Single scrolling column: the panels and board stack and the whole page
+     scrolls, so the Pack details panel scrolls away with the content instead
+     of being pinned at the top and eating most of the screen. */
+  body { overflow-y: auto; }
+  .topbar { position: sticky; top: 0; z-index: 50; }
+  .layout {
+    display: flex;
+    flex-direction: column;
+    flex: 1 0 auto;
+    min-height: 0;
+  }
+  .panel {
+    border: none;
+    border-bottom: 1px solid var(--line);
+    max-height: none;
+    overflow: visible;
+    flex: 0 0 auto;
+  }
   .panel-right { border-bottom: none; border-top: 1px solid var(--line); }
+  /* The board sizes itself by width (it has a fixed 3:2 aspect-ratio), so it
+     no longer needs to fill a flex row — let it take its natural height. */
+  .canvas-stage { flex: 0 0 auto; overflow: visible; padding: 16px; }
 }

@@ -674,7 +674,15 @@ function backToPack() {
 
 async function openPackById(rawId) {
   const id = String(rawId || "").trim();
-  if (!id) { showToast("Enter a pack ID.", "error", 3500); return; }
+  if (!id) {
+    // Nudge the user to the field instead of silently doing nothing — on
+    // mobile it's tempting to just tap Open and wonder why nothing happens.
+    showToast("Enter a pack ID.", "error", 3500);
+    const field = $("pack-id");
+    field.focus();
+    field.select();
+    return;
+  }
   if (!isNumericId(id)) { showToast("Pack ID must be a number.", "error", 3500); return; }
   if (!confirmDiscardDirty()) return;
 
@@ -1054,7 +1062,9 @@ function getSelectedRect() {
 }
 
 function selectionResizable(sel) {
-  return sel && (sel.kind === "wall" || sel.kind === "hole");
+  // Only walls can be resized. Holes, start and goal are fixed-size in the
+  // game, so they can be moved but not resized (no handles, no size fields).
+  return sel && sel.kind === "wall";
 }
 
 function deleteSelected() {
@@ -1709,18 +1719,14 @@ function syncSelectionPanel() {
   $("sel-kind-label").textContent = sel.kind.toUpperCase();
   $("sel-x").value = Math.round(r.x);
   $("sel-y").value = Math.round(r.y);
-  const isHole = sel.kind === "hole";
-  const isFixedSize = sel.kind === "start" || sel.kind === "goal";
-  $("sel-size-row").hidden = isFixedSize;
-  $("sel-w-label").textContent = isHole ? "Size" : "Width";
-  $("sel-h-field").hidden = isHole;
-  if (!isFixedSize) {
-    if (isHole) {
-      $("sel-w").value = Math.round(Math.max(r.width, r.height));
-    } else {
-      $("sel-w").value = Math.round(r.width);
-      $("sel-h").value = Math.round(r.height);
-    }
+  // Only walls expose size fields. Holes, start and goal are fixed-size.
+  const isResizable = sel.kind === "wall";
+  $("sel-size-row").hidden = !isResizable;
+  $("sel-w-label").textContent = "Width";
+  $("sel-h-field").hidden = false;
+  if (isResizable) {
+    $("sel-w").value = Math.round(r.width);
+    $("sel-h").value = Math.round(r.height);
   }
   $("sel-wall-extra").hidden = sel.kind !== "wall";
   if (sel.kind === "wall") {
