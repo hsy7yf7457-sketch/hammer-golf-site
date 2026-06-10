@@ -78,7 +78,7 @@ const state = {
   options: { grid: true, snap: true, step: 8 },
   draft: null,                 // active drag: { kind, start, current, mode, originalRect, handle }
   hover: null,                 // { kind, idx }
-  touchPan: null,              // touch drag-to-scroll on empty board space
+  emptyTouch: null,            // touch on empty board: native scroll + tap deselect
 };
 
 const history = { past: [], future: [] };
@@ -1521,48 +1521,17 @@ function resizeHoleFromHandle(r, orig, handle, p) {
 
 function beginCanvasDrag(e) {
   e.preventDefault();
+  canvas.style.touchAction = "none";
   canvas.setPointerCapture(e.pointerId);
 }
 
 function endCanvasDrag() {
-  // Pointer capture is released automatically on pointerup.
+  canvas.style.touchAction = "";
 }
 
-function startTouchPan(e) {
-  e.preventDefault();
-  state.touchPan = {
-    pointerId: e.pointerId,
-    startClientX: e.clientX,
-    startClientY: e.clientY,
-    startScrollX: window.scrollX,
-    startScrollY: window.scrollY,
-    moved: false,
-  };
-  window.addEventListener("pointermove", onTouchPanMove, { passive: false });
-  window.addEventListener("pointerup", endTouchPan);
-  window.addEventListener("pointercancel", endTouchPan);
-}
-
-function onTouchPanMove(e) {
-  if (!state.touchPan || e.pointerId !== state.touchPan.pointerId) return;
-  e.preventDefault();
-  const pan = state.touchPan;
-  if (Math.abs(e.clientX - pan.startClientX) > 6 ||
-      Math.abs(e.clientY - pan.startClientY) > 6) pan.moved = true;
-  window.scrollTo(
-    pan.startScrollX + (pan.startClientX - e.clientX),
-    pan.startScrollY + (pan.startClientY - e.clientY)
-  );
-}
-
-function endTouchPan(e) {
-  if (!state.touchPan || e.pointerId !== state.touchPan.pointerId) return;
-  const moved = state.touchPan.moved;
-  state.touchPan = null;
-  window.removeEventListener("pointermove", onTouchPanMove);
-  window.removeEventListener("pointerup", endTouchPan);
-  window.removeEventListener("pointercancel", endTouchPan);
-  if (!moved) { setSelection(null); syncAll(); }
+function resetEmptyTouch() {
+  state.emptyTouch = null;
+  canvas.style.touchAction = "";
 }
 
 canvas.addEventListener("pointerdown", (e) => {
@@ -1576,8 +1545,9 @@ canvas.addEventListener("pointerdown", (e) => {
     if (selRect && selectionResizable(state.selection)) {
       const h = hitHandle(selRect, p);
       if (h) {
-        pushHistory();
+        canvas.style.touchAction = "none";
         beginCanvasDrag(e);
+        pushHistory();
         state.draft = {
           kind: "resize",
           handle: h,
@@ -1589,6 +1559,7 @@ canvas.addEventListener("pointerdown", (e) => {
     }
     const hit = pick(p);
     if (hit) {
+      canvas.style.touchAction = "none";
       beginCanvasDrag(e);
       setSelection(hit);
       pushHistory();
@@ -1599,10 +1570,15 @@ canvas.addEventListener("pointerdown", (e) => {
       };
       return;
     }
-    // Empty board on touch: manual page scroll (canvas keeps touch-action:none so
-    // object drags never compete with native pan). Tap without moving deselects.
+    // Empty board on touch: enable native scroll for this gesture only.
+    // pan-x pan-y must be set here before the browser picks scroll vs drag.
     if (e.pointerType === "touch") {
-      startTouchPan(e);
+      canvas.style.touchAction = "pan-x pan-y";
+      state.emptyTouch = {
+        pointerId: e.pointerId,
+        startX: e.clientX,
+        startY: e.clientY,
+      };
       return;
     }
     setSelection(null);
@@ -1658,9 +1634,9 @@ canvas.addEventListener("pointerdown", (e) => {
 
 canvas.addEventListener("pointermove", (e) => {
   if (!state.pack) return;
-  // Touch pan / scroll must not run hover/coords/draw — canvas moves under the
-  // finger and would thrash layout every frame (violent shake).
-  if (state.touchPan) return;
+  // Native scroll on empty board must not run hover/coords/draw — canvas moves
+  // under the finger and thrashes layout every frame (violent shake).
+  if (state.emptyTouch) return;
   if (e.pointerType === "touch" && !state.draft) return;
 
   const p = logicalFromEvent(e);
@@ -1695,7 +1671,13 @@ canvas.addEventListener("pointermove", (e) => {
 });
 
 canvas.addEventListener("pointerup", (e) => {
-  if (state.touchPan) return;
+  if (state.emptyTouch && e.pointerId === state.emptyTouch.pointerId) {
+    const t = state.emptyTouch;
+    const moved = Math.hypot(e.clientX - t.startX, e.clientY - t.startY) >= 6;
+    resetEmptyTouch();
+    if (!moved) { setSelection(null); syncAll(); }
+    return;
+  }
 
   endCanvasDrag();
 
@@ -1719,7 +1701,7 @@ canvas.addEventListener("pointerup", (e) => {
 });
 
 canvas.addEventListener("pointercancel", (e) => {
-  if (state.touchPan && e.pointerId === state.touchPan.pointerId) endTouchPan(e);
+  if (state.emptyTouch && e.pointerId === state.emptyTouch.pointerId) resetEmptyTouch();
   endCanvasDrag();
 });
 
