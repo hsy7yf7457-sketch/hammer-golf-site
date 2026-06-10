@@ -1082,15 +1082,17 @@ function selectionResizable(sel) {
   return sel && sel.kind === "wall";
 }
 
+function selectionDeletable(sel) {
+  return sel && sel.kind !== "start" && sel.kind !== "goal";
+}
+
 function deleteSelected() {
   const sel = state.selection;
-  if (!sel) return;
+  if (!selectionDeletable(sel)) return;
   const lvl = currentLevel();
   pushHistory();
   if (sel.kind === "wall")  lvl.walls.splice(sel.idx, 1);
   if (sel.kind === "hole")  lvl.holes.splice(sel.idx, 1);
-  if (sel.kind === "start") lvl.start = null;
-  if (sel.kind === "goal")  lvl.goal = null;
   state.selection = null;
   syncAll();
 }
@@ -1827,6 +1829,7 @@ function syncSelectionPanel() {
     }
   }
   $("sel-dup").hidden = sel.kind === "start" || sel.kind === "goal";
+  $("sel-del").hidden = !selectionDeletable(sel);
 }
 
 function bindSelectionField(id, prop) {
@@ -2167,8 +2170,10 @@ window.addEventListener("keydown", (e) => {
       if (!e.metaKey && !e.ctrlKey) duplicateSelected();
       break;
     case "Delete": case "Backspace":
-      e.preventDefault();
-      deleteSelected();
+      if (selectionDeletable(state.selection)) {
+        e.preventDefault();
+        deleteSelected();
+      }
       break;
     case "ArrowLeft":
       e.preventDefault();
