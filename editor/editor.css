@@ -479,6 +479,12 @@ h1, h2, h3 { margin: 0; font-weight: 600; }
 body[data-view="pack"]  .panel-right { display: none; }
 body[data-view="empty"] .panel-right { display: none; }
 
+/* Before a pack is opened/created there's nothing to configure, so hide the
+   left Pack panel (name / author / password) too and let the empty-state
+   board fill the full width. */
+body[data-view="empty"] .panel-left { display: none; }
+body[data-view="empty"] .layout { grid-template-columns: 1fr; }
+
 /* ---------- Board ---------- */
 .board-wrap {
   display: flex;
