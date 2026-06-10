@@ -1526,8 +1526,8 @@ canvas.addEventListener("pointerdown", (e) => {
         startClientY: e.clientY,
         startClientX: e.clientX,
         lastClientY: e.clientY,
+        lastClientX: e.clientX,
         moved: false,
-        scroller: canvas.closest(".layout"),
       };
       return;
     }
@@ -1612,11 +1612,13 @@ canvas.addEventListener("pointermove", (e) => {
   // Drag-to-scroll gesture in progress (touch, started on empty space).
   if (state.touchPan && e.pointerId === state.touchPan.pointerId) {
     const pan = state.touchPan;
+    const dx = e.clientX - pan.lastClientX;
     const dy = e.clientY - pan.lastClientY;
+    pan.lastClientX = e.clientX;
     pan.lastClientY = e.clientY;
     if (Math.abs(e.clientX - pan.startClientX) > 6 ||
         Math.abs(e.clientY - pan.startClientY) > 6) pan.moved = true;
-    if (pan.scroller) pan.scroller.scrollTop -= dy;
+    window.scrollBy(-dx, -dy);
     return;
   }
 
