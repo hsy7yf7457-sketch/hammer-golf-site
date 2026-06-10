@@ -1003,11 +1003,26 @@ window.addEventListener("keydown", (e) => {
 });
 
 // ----------------------- Coords / hit testing -----------------------
-function logicalFromEvent(e) {
+function logicalFromClient(clientX, clientY) {
   const rect = canvas.getBoundingClientRect();
-  const cx = (e.clientX - rect.left) * (BOARD_W / rect.width);
-  const cy = (e.clientY - rect.top)  * (BOARD_H / rect.height);
-  return { x: cx, y: cy };
+  return {
+    x: (clientX - rect.left) * (BOARD_W / rect.width),
+    y: (clientY - rect.top) * (BOARD_H / rect.height),
+  };
+}
+
+function logicalFromEvent(e) {
+  return logicalFromClient(e.clientX, e.clientY);
+}
+
+function shouldBlockScrollForEdit(clientX, clientY) {
+  if (!state.pack || state.tool !== "select") return true;
+  const p = logicalFromClient(clientX, clientY);
+  const selRect = getSelectedRect();
+  if (selRect && selectionResizable(state.selection)) {
+    if (hitHandle(selRect, p)) return true;
+  }
+  return !!pick(p);
 }
 
 function rectContains(r, p, pad = 0) {
@@ -1409,7 +1424,8 @@ function setTool(name) {
     btn.classList.toggle("active", btn.dataset.tool === name);
   }
   canvas.classList.toggle("tool-select", name === "select");
-  canvas.style.cursor = name === "select" ? "default" : "crosshair";
+  stage.classList.toggle("tool-select-scroll", name === "select");
+  stage.style.cursor = name === "select" ? "default" : "crosshair";
   draw();
 }
 
@@ -1521,7 +1537,7 @@ function resizeHoleFromHandle(r, orig, handle, p) {
 
 function beginCanvasDrag(e) {
   e.preventDefault();
-  canvas.setPointerCapture(e.pointerId);
+  stage.setPointerCapture(e.pointerId);
 }
 
 function endCanvasDrag() {
@@ -1532,7 +1548,19 @@ function resetEmptyTouch() {
   state.emptyTouch = null;
 }
 
-canvas.addEventListener("pointerdown", (e) => {
+// iOS needs touchstart preventDefault (passive:false) to stop pan-x pan-y scroll
+// when dragging objects. Pointer events alone are not reliable on canvas.
+stage.addEventListener("touchstart", (e) => {
+  if (e.touches.length !== 1) return;
+  const t = e.touches[0];
+  if (shouldBlockScrollForEdit(t.clientX, t.clientY)) e.preventDefault();
+}, { passive: false });
+
+stage.addEventListener("touchmove", (e) => {
+  if (state.draft && e.touches.length === 1) e.preventDefault();
+}, { passive: false });
+
+stage.addEventListener("pointerdown", (e) => {
   if (e.button !== 0) return;
   if (!state.pack) return;
   const p = logicalFromEvent(e);
@@ -1629,7 +1657,7 @@ canvas.addEventListener("pointerdown", (e) => {
   }
 });
 
-canvas.addEventListener("pointermove", (e) => {
+stage.addEventListener("pointermove", (e) => {
   if (!state.pack) return;
   // Native scroll on empty board must not run hover/coords/draw — canvas moves
   // under the finger and thrashes layout every frame (violent shake).
@@ -1651,7 +1679,7 @@ canvas.addEventListener("pointermove", (e) => {
     if (selRect && selectionResizable(state.selection)) {
       const h = hitHandle(selRect, p);
       if (h) {
-        canvas.style.cursor = handleCursor(h);
+        stage.style.cursor = handleCursor(h);
         return;
       }
     }
@@ -1661,14 +1689,14 @@ canvas.addEventListener("pointermove", (e) => {
                     (state.hover && hit &&
                      (state.hover.kind !== hit.kind || state.hover.idx !== hit.idx));
     state.hover = hit;
-    canvas.style.cursor = hit ? "move" : "default";
+    stage.style.cursor = hit ? "move" : "default";
     if (changed) draw();
   } else {
-    canvas.style.cursor = "crosshair";
+    stage.style.cursor = "crosshair";
   }
 }, { passive: false });
 
-canvas.addEventListener("pointerup", (e) => {
+stage.addEventListener("pointerup", (e) => {
   if (state.emptyTouch && e.pointerId === state.emptyTouch.pointerId) {
     const t = state.emptyTouch;
     const moved = Math.hypot(e.clientX - t.startX, e.clientY - t.startY) >= 6;
@@ -1698,12 +1726,12 @@ canvas.addEventListener("pointerup", (e) => {
   syncAll();
 });
 
-canvas.addEventListener("pointercancel", (e) => {
+stage.addEventListener("pointercancel", (e) => {
   if (state.emptyTouch && e.pointerId === state.emptyTouch.pointerId) resetEmptyTouch();
   endCanvasDrag();
 });
 
-canvas.addEventListener("pointerleave", () => {
+stage.addEventListener("pointerleave", () => {
   coordsEl.textContent = "—";
   if (!state.draft && state.hover) { state.hover = null; draw(); }
 });

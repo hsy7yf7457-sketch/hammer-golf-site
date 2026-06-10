@@ -542,6 +542,12 @@ body[data-view="empty"] .layout { grid-template-columns: 1fr; }
   justify-content: center;
   padding: 24px;
   overflow: auto;
+  touch-action: none;
+}
+.canvas-stage.tool-select-scroll {
+  /* Native page scroll on empty board; object drags block scroll via touchstart. */
+  touch-action: pan-x pan-y;
+  cursor: default;
 }
 #board {
   display: block;
@@ -549,17 +555,12 @@ body[data-view="empty"] .layout { grid-template-columns: 1fr; }
   border-radius: 14px;
   box-shadow: var(--board-shadow);
   image-rendering: -webkit-optimize-contrast;
-  cursor: crosshair;
   touch-action: none;
+  pointer-events: none;
   /* Scale up the 480x320 logical pixels nicely. Width set by JS responsively. */
   width: min(960px, 100%);
   height: auto;
   aspect-ratio: 3 / 2;
-}
-#board.tool-select {
-  /* Native page scroll on empty board (must be set in CSS before touchstart). */
-  touch-action: pan-x pan-y;
-  cursor: default;
 }
 
 .board-coords {
