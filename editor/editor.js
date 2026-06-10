@@ -78,6 +78,7 @@ const state = {
   options: { grid: true, snap: true, step: 8 },
   draft: null,                 // active drag: { kind, start, current, mode, originalRect, handle }
   hover: null,                 // { kind, idx }
+  touchPan: null,              // active touch drag-to-scroll over empty board
 };
 
 const history = { past: [], future: [] };
@@ -1508,9 +1509,31 @@ function resizeHoleFromHandle(r, orig, handle, p) {
 canvas.addEventListener("pointerdown", (e) => {
   if (e.button !== 0) return;
   if (!state.pack) return;
-  canvas.setPointerCapture(e.pointerId);
   const p = logicalFromEvent(e);
   const lvl = currentLevel();
+
+  // Touch + select tool + empty space (not on a resize handle or any
+  // object): drag to scroll the page instead of letting the full-screen
+  // board trap the user with no way to scroll on mobile. A drag that doesn't
+  // move is treated as a tap (deselect) on pointerup.
+  if (e.pointerType === "touch" && state.tool === "select") {
+    const selRect = getSelectedRect();
+    const onHandle = selRect && selectionResizable(state.selection) && hitHandle(selRect, p);
+    if (!onHandle && !pick(p)) {
+      canvas.setPointerCapture(e.pointerId);
+      state.touchPan = {
+        pointerId: e.pointerId,
+        startClientY: e.clientY,
+        startClientX: e.clientX,
+        lastClientY: e.clientY,
+        moved: false,
+        scroller: canvas.closest(".layout"),
+      };
+      return;
+    }
+  }
+
+  canvas.setPointerCapture(e.pointerId);
 
   if (state.tool === "select") {
     const selRect = getSelectedRect();
@@ -1585,6 +1608,18 @@ canvas.addEventListener("pointerdown", (e) => {
 
 canvas.addEventListener("pointermove", (e) => {
   if (!state.pack) return;
+
+  // Drag-to-scroll gesture in progress (touch, started on empty space).
+  if (state.touchPan && e.pointerId === state.touchPan.pointerId) {
+    const pan = state.touchPan;
+    const dy = e.clientY - pan.lastClientY;
+    pan.lastClientY = e.clientY;
+    if (Math.abs(e.clientX - pan.startClientX) > 6 ||
+        Math.abs(e.clientY - pan.startClientY) > 6) pan.moved = true;
+    if (pan.scroller) pan.scroller.scrollTop -= dy;
+    return;
+  }
+
   const p = logicalFromEvent(e);
   coordsEl.textContent = `${Math.round(p.x)}, ${Math.round(p.y)}`;
 
@@ -1617,6 +1652,15 @@ canvas.addEventListener("pointermove", (e) => {
 });
 
 canvas.addEventListener("pointerup", (e) => {
+  // End of a drag-to-scroll gesture. If the finger didn't really move, treat
+  // it as a tap on empty space and deselect.
+  if (state.touchPan && e.pointerId === state.touchPan.pointerId) {
+    const moved = state.touchPan.moved;
+    state.touchPan = null;
+    if (!moved) { setSelection(null); syncAll(); }
+    return;
+  }
+
   const p = logicalFromEvent(e);
   const d = state.draft;
   state.draft = null;
@@ -1634,6 +1678,10 @@ canvas.addEventListener("pointerup", (e) => {
     }
   }
   syncAll();
+});
+
+canvas.addEventListener("pointercancel", (e) => {
+  if (state.touchPan && e.pointerId === state.touchPan.pointerId) state.touchPan = null;
 });
 
 canvas.addEventListener("pointerleave", () => {

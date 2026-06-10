@@ -907,16 +907,16 @@ body[data-view="empty"] .layout { grid-template-columns: 1fr; }
   .layout { grid-template-columns: 220px 1fr 240px; }
 }
 @media (max-width: 900px) {
-  /* Single scrolling column: the panels and board stack and the whole page
-     scrolls, so the Pack details panel scrolls away with the content instead
-     of being pinned at the top and eating most of the screen. */
-  body { overflow-y: auto; }
-  .topbar { position: sticky; top: 0; z-index: 50; }
+  /* Single scrolling column: the panels and board stack and the .layout area
+     scrolls (the top bar stays put), so the Pack details panel scrolls away
+     with the content instead of being pinned at the top and eating most of
+     the screen. .layout is the scroll container (referenced by the canvas
+     drag-to-scroll handler). */
   .layout {
     display: flex;
     flex-direction: column;
-    flex: 1 0 auto;
-    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
   .panel {
     border: none;
