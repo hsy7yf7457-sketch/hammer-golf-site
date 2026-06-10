@@ -1521,17 +1521,15 @@ function resizeHoleFromHandle(r, orig, handle, p) {
 
 function beginCanvasDrag(e) {
   e.preventDefault();
-  canvas.style.touchAction = "none";
   canvas.setPointerCapture(e.pointerId);
 }
 
 function endCanvasDrag() {
-  canvas.style.touchAction = "";
+  // Pointer capture is released automatically on pointerup.
 }
 
 function resetEmptyTouch() {
   state.emptyTouch = null;
-  canvas.style.touchAction = "";
 }
 
 canvas.addEventListener("pointerdown", (e) => {
@@ -1545,7 +1543,7 @@ canvas.addEventListener("pointerdown", (e) => {
     if (selRect && selectionResizable(state.selection)) {
       const h = hitHandle(selRect, p);
       if (h) {
-        canvas.style.touchAction = "none";
+        e.preventDefault();
         beginCanvasDrag(e);
         pushHistory();
         state.draft = {
@@ -1559,7 +1557,7 @@ canvas.addEventListener("pointerdown", (e) => {
     }
     const hit = pick(p);
     if (hit) {
-      canvas.style.touchAction = "none";
+      e.preventDefault();
       beginCanvasDrag(e);
       setSelection(hit);
       pushHistory();
@@ -1570,10 +1568,9 @@ canvas.addEventListener("pointerdown", (e) => {
       };
       return;
     }
-    // Empty board on touch: enable native scroll for this gesture only.
-    // pan-x pan-y must be set here before the browser picks scroll vs drag.
+    // Empty board on touch: CSS touch-action pan-x pan-y scrolls the page.
+    // Track for tap-without-move to deselect.
     if (e.pointerType === "touch") {
-      canvas.style.touchAction = "pan-x pan-y";
       state.emptyTouch = {
         pointerId: e.pointerId,
         startX: e.clientX,
@@ -1643,6 +1640,7 @@ canvas.addEventListener("pointermove", (e) => {
   coordsEl.textContent = `${Math.round(p.x)}, ${Math.round(p.y)}`;
 
   if (state.draft) {
+    if (e.pointerType === "touch") e.preventDefault();
     applyDrag(p);
     return;
   }
@@ -1668,7 +1666,7 @@ canvas.addEventListener("pointermove", (e) => {
   } else {
     canvas.style.cursor = "crosshair";
   }
-});
+}, { passive: false });
 
 canvas.addEventListener("pointerup", (e) => {
   if (state.emptyTouch && e.pointerId === state.emptyTouch.pointerId) {

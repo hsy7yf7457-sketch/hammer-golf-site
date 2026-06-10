@@ -557,6 +557,8 @@ body[data-view="empty"] .layout { grid-template-columns: 1fr; }
   aspect-ratio: 3 / 2;
 }
 #board.tool-select {
+  /* Native page scroll on empty board (must be set in CSS before touchstart). */
+  touch-action: pan-x pan-y;
   cursor: default;
 }
 
