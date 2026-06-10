@@ -64,7 +64,6 @@ const $ = (id) => document.getElementById(id);
 const canvas = $("board");
 const stage = $("canvas-stage");
 const ctx = canvas.getContext("2d");
-const coordsEl = $("board-coords");
 const toast = $("toast");
 
 // ----------------------- State -----------------------
@@ -1665,7 +1664,6 @@ stage.addEventListener("pointermove", (e) => {
   if (e.pointerType === "touch" && !state.draft) return;
 
   const p = logicalFromEvent(e);
-  coordsEl.textContent = `${Math.round(p.x)}, ${Math.round(p.y)}`;
 
   if (state.draft) {
     if (e.pointerType === "touch") e.preventDefault();
@@ -1732,7 +1730,6 @@ stage.addEventListener("pointercancel", (e) => {
 });
 
 stage.addEventListener("pointerleave", () => {
-  coordsEl.textContent = "—";
   if (!state.draft && state.hover) { state.hover = null; draw(); }
 });
 
