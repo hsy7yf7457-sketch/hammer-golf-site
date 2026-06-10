@@ -911,15 +911,23 @@ body[data-view="empty"] .layout { grid-template-columns: 1fr; }
      scrolls, so the Pack details panel scrolls away instead of pinning at
      the top. Keep board-wrap / level-editor from stretching to viewport
      height — otherwise the right panel (par/dev time) ends up overlapped
-     by the full-height canvas area. */
-  body { overflow-y: auto; }
+     by the full-height canvas area.
+     Use block flow (not flex) on body so scrolling doesn't fight flex sizing
+     and cause violent scroll jitter when panning from the canvas. */
+  html, body {
+    height: auto;
+    min-height: 100%;
+    overflow-anchor: none;
+  }
+  body {
+    display: block;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
   .topbar { position: sticky; top: 0; z-index: 50; }
   .layout {
     display: flex;
     flex-direction: column;
-    flex: 1 0 auto;
-    min-height: auto;
-    overflow: visible;
   }
   .board-wrap {
     flex: 0 0 auto;

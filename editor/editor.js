@@ -1506,6 +1506,33 @@ function resizeHoleFromHandle(r, orig, handle, p) {
   r.y = clamp(r.y, 0, BOARD_H - size);
 }
 
+function applyTouchPanScroll(pan, clientX, clientY) {
+  if (Math.abs(clientX - pan.startClientX) > 6 ||
+      Math.abs(clientY - pan.startClientY) > 6) pan.moved = true;
+  // Absolute scroll from touch start — incremental scrollBy fights layout
+  // reflow (flex + sticky header) and causes violent jitter on mobile.
+  window.scrollTo(
+    pan.startScrollX + (pan.startClientX - clientX),
+    pan.startScrollY + (pan.startClientY - clientY)
+  );
+}
+
+function onTouchPanMove(e) {
+  if (!state.touchPan || e.pointerId !== state.touchPan.pointerId) return;
+  e.preventDefault();
+  applyTouchPanScroll(state.touchPan, e.clientX, e.clientY);
+}
+
+function endTouchPan(e) {
+  if (!state.touchPan || e.pointerId !== state.touchPan.pointerId) return;
+  const moved = state.touchPan.moved;
+  state.touchPan = null;
+  window.removeEventListener("pointermove", onTouchPanMove);
+  window.removeEventListener("pointerup", endTouchPan);
+  window.removeEventListener("pointercancel", endTouchPan);
+  if (!moved) { setSelection(null); syncAll(); }
+}
+
 canvas.addEventListener("pointerdown", (e) => {
   if (e.button !== 0) return;
   if (!state.pack) return;
@@ -1520,15 +1547,18 @@ canvas.addEventListener("pointerdown", (e) => {
     const selRect = getSelectedRect();
     const onHandle = selRect && selectionResizable(state.selection) && hitHandle(selRect, p);
     if (!onHandle && !pick(p)) {
-      canvas.setPointerCapture(e.pointerId);
+      e.preventDefault();
       state.touchPan = {
         pointerId: e.pointerId,
-        startClientY: e.clientY,
         startClientX: e.clientX,
-        lastClientY: e.clientY,
-        lastClientX: e.clientX,
+        startClientY: e.clientY,
+        startScrollX: window.scrollX,
+        startScrollY: window.scrollY,
         moved: false,
       };
+      window.addEventListener("pointermove", onTouchPanMove, { passive: false });
+      window.addEventListener("pointerup", endTouchPan);
+      window.addEventListener("pointercancel", endTouchPan);
       return;
     }
   }
@@ -1609,19 +1639,6 @@ canvas.addEventListener("pointerdown", (e) => {
 canvas.addEventListener("pointermove", (e) => {
   if (!state.pack) return;
 
-  // Drag-to-scroll gesture in progress (touch, started on empty space).
-  if (state.touchPan && e.pointerId === state.touchPan.pointerId) {
-    const pan = state.touchPan;
-    const dx = e.clientX - pan.lastClientX;
-    const dy = e.clientY - pan.lastClientY;
-    pan.lastClientX = e.clientX;
-    pan.lastClientY = e.clientY;
-    if (Math.abs(e.clientX - pan.startClientX) > 6 ||
-        Math.abs(e.clientY - pan.startClientY) > 6) pan.moved = true;
-    window.scrollBy(-dx, -dy);
-    return;
-  }
-
   const p = logicalFromEvent(e);
   coordsEl.textContent = `${Math.round(p.x)}, ${Math.round(p.y)}`;
 
@@ -1654,14 +1671,7 @@ canvas.addEventListener("pointermove", (e) => {
 });
 
 canvas.addEventListener("pointerup", (e) => {
-  // End of a drag-to-scroll gesture. If the finger didn't really move, treat
-  // it as a tap on empty space and deselect.
-  if (state.touchPan && e.pointerId === state.touchPan.pointerId) {
-    const moved = state.touchPan.moved;
-    state.touchPan = null;
-    if (!moved) { setSelection(null); syncAll(); }
-    return;
-  }
+  if (state.touchPan) return;
 
   const p = logicalFromEvent(e);
   const d = state.draft;
@@ -1680,10 +1690,6 @@ canvas.addEventListener("pointerup", (e) => {
     }
   }
   syncAll();
-});
-
-canvas.addEventListener("pointercancel", (e) => {
-  if (state.touchPan && e.pointerId === state.touchPan.pointerId) state.touchPan = null;
 });
 
 canvas.addEventListener("pointerleave", () => {
