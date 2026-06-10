@@ -78,7 +78,7 @@ const state = {
   options: { grid: true, snap: true, step: 8 },
   draft: null,                 // active drag: { kind, start, current, mode, originalRect, handle }
   hover: null,                 // { kind, idx }
-  touchPan: null,              // active touch drag-to-scroll over empty board
+  emptyTouch: null,            // touch tap on empty board (tap deselect, drag scrolls natively)
 };
 
 const history = { past: [], future: [] };
@@ -1397,6 +1397,7 @@ function setTool(name) {
   }
   canvas.classList.toggle("tool-select", name === "select");
   canvas.style.cursor = name === "select" ? "default" : "crosshair";
+  canvas.style.touchAction = "";
   draw();
 }
 
@@ -1506,31 +1507,14 @@ function resizeHoleFromHandle(r, orig, handle, p) {
   r.y = clamp(r.y, 0, BOARD_H - size);
 }
 
-function applyTouchPanScroll(pan, clientX, clientY) {
-  if (Math.abs(clientX - pan.startClientX) > 6 ||
-      Math.abs(clientY - pan.startClientY) > 6) pan.moved = true;
-  // Absolute scroll from touch start — incremental scrollBy fights layout
-  // reflow (flex + sticky header) and causes violent jitter on mobile.
-  window.scrollTo(
-    pan.startScrollX + (pan.startClientX - clientX),
-    pan.startScrollY + (pan.startClientY - clientY)
-  );
-}
-
-function onTouchPanMove(e) {
-  if (!state.touchPan || e.pointerId !== state.touchPan.pointerId) return;
+function beginCanvasDrag(e) {
   e.preventDefault();
-  applyTouchPanScroll(state.touchPan, e.clientX, e.clientY);
+  canvas.style.touchAction = "none";
+  canvas.setPointerCapture(e.pointerId);
 }
 
-function endTouchPan(e) {
-  if (!state.touchPan || e.pointerId !== state.touchPan.pointerId) return;
-  const moved = state.touchPan.moved;
-  state.touchPan = null;
-  window.removeEventListener("pointermove", onTouchPanMove);
-  window.removeEventListener("pointerup", endTouchPan);
-  window.removeEventListener("pointercancel", endTouchPan);
-  if (!moved) { setSelection(null); syncAll(); }
+function endCanvasDrag() {
+  canvas.style.touchAction = "";
 }
 
 canvas.addEventListener("pointerdown", (e) => {
@@ -1539,38 +1523,13 @@ canvas.addEventListener("pointerdown", (e) => {
   const p = logicalFromEvent(e);
   const lvl = currentLevel();
 
-  // Touch + select tool + empty space (not on a resize handle or any
-  // object): drag to scroll the page instead of letting the full-screen
-  // board trap the user with no way to scroll on mobile. A drag that doesn't
-  // move is treated as a tap (deselect) on pointerup.
-  if (e.pointerType === "touch" && state.tool === "select") {
-    const selRect = getSelectedRect();
-    const onHandle = selRect && selectionResizable(state.selection) && hitHandle(selRect, p);
-    if (!onHandle && !pick(p)) {
-      e.preventDefault();
-      state.touchPan = {
-        pointerId: e.pointerId,
-        startClientX: e.clientX,
-        startClientY: e.clientY,
-        startScrollX: window.scrollX,
-        startScrollY: window.scrollY,
-        moved: false,
-      };
-      window.addEventListener("pointermove", onTouchPanMove, { passive: false });
-      window.addEventListener("pointerup", endTouchPan);
-      window.addEventListener("pointercancel", endTouchPan);
-      return;
-    }
-  }
-
-  canvas.setPointerCapture(e.pointerId);
-
   if (state.tool === "select") {
     const selRect = getSelectedRect();
     if (selRect && selectionResizable(state.selection)) {
       const h = hitHandle(selRect, p);
       if (h) {
         pushHistory();
+        beginCanvasDrag(e);
         state.draft = {
           kind: "resize",
           handle: h,
@@ -1581,17 +1540,34 @@ canvas.addEventListener("pointerdown", (e) => {
       }
     }
     const hit = pick(p);
-    setSelection(hit);
     if (hit) {
-      const r = getSelectedRect();
+      setSelection(hit);
       pushHistory();
+      beginCanvasDrag(e);
       state.draft = {
         kind: "move",
         start: p,
-        originalRect: { ...r },
+        originalRect: { ...getSelectedRect() },
       };
+      return;
     }
-  } else if (state.tool === "wall") {
+    // Empty board on touch: native scroll (touch-action: pan-x pan-y on canvas).
+    // Tap without moving still deselects on pointerup.
+    if (e.pointerType === "touch") {
+      state.emptyTouch = {
+        pointerId: e.pointerId,
+        startX: e.clientX,
+        startY: e.clientY,
+      };
+      return;
+    }
+    setSelection(null);
+    return;
+  }
+
+  beginCanvasDrag(e);
+
+  if (state.tool === "wall") {
     pushHistory();
     state.draft = {
       kind: "new-wall",
@@ -1671,7 +1647,17 @@ canvas.addEventListener("pointermove", (e) => {
 });
 
 canvas.addEventListener("pointerup", (e) => {
-  if (state.touchPan) return;
+  if (state.emptyTouch && e.pointerId === state.emptyTouch.pointerId) {
+    const t = state.emptyTouch;
+    state.emptyTouch = null;
+    if (Math.hypot(e.clientX - t.startX, e.clientY - t.startY) < 6) {
+      setSelection(null);
+      syncAll();
+    }
+    return;
+  }
+
+  endCanvasDrag();
 
   const p = logicalFromEvent(e);
   const d = state.draft;
@@ -1690,6 +1676,11 @@ canvas.addEventListener("pointerup", (e) => {
     }
   }
   syncAll();
+});
+
+canvas.addEventListener("pointercancel", (e) => {
+  if (state.emptyTouch && e.pointerId === state.emptyTouch.pointerId) state.emptyTouch = null;
+  endCanvasDrag();
 });
 
 canvas.addEventListener("pointerleave", () => {
