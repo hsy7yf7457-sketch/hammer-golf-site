@@ -1,0 +1,124 @@
+{
+  "defaultScene": "Challenge5",
+  "schedule": [
+    "Challenge1",
+    "Challenge2",
+    "Challenge1",
+    "Challenge1",
+    "Challenge1",
+    "Challenge1",
+    "Challenge1"
+  ],
+  "challenges": [
+    {
+      "id": "Challenge1",
+      "scene": "Challenge1",
+      "name": "Destruction Derby",
+      "scoringMode": "Timed",
+      "rulesType": "ChallengeDestructionDerbyRules",
+      "par": 50,
+      "targets": {
+        "great": 50,
+        "masterful": 30
+      },
+      "tierLabels": {
+        "cleared": "Cleared",
+        "great": "Great Score",
+        "masterful": "Masterful Score"
+      },
+      "tierIcons": {
+        "cleared": "SI_challenge_cleared",
+        "great": "SI_challenge_great",
+        "masterful": "SI_challenge_masterful"
+      }
+    },
+    {
+      "id": "Challenge2",
+      "scene": "Challenge2",
+      "name": "Course Cleanup",
+      "scoringMode": "Timed",
+      "rulesType": "ChallengeBilliardClearRules",
+      "par": 60,
+      "targets": {
+        "great": 60,
+        "masterful": 30
+      },
+      "tierLabels": {
+        "cleared": "Cleared",
+        "great": "Great Score",
+        "masterful": "Masterful Score"
+      },
+      "tierIcons": {
+        "cleared": "SI_challenge_cleared",
+        "great": "SI_challenge_great",
+        "masterful": "SI_challenge_masterful"
+      }
+    },
+    {
+      "id": "Challenge3",
+      "scene": "Level8",
+      "name": "Movie Star",
+      "scoringMode": "Timed",
+      "rulesType": "ChallengeCesnaDestroyRules",
+      "par": 120,
+      "targets": {
+        "great": 90,
+        "masterful": 60
+      },
+      "tierLabels": {
+        "cleared": "Cleared",
+        "great": "Great Score",
+        "masterful": "Masterful Score"
+      },
+      "tierIcons": {
+        "cleared": "SI_challenge_cleared",
+        "great": "SI_challenge_great",
+        "masterful": "SI_challenge_masterful"
+      }
+    },
+    {
+      "id": "Challenge4",
+      "scene": "Challenge4",
+      "name": "Burn Baby Burn",
+      "scoringMode": "Timed",
+      "rulesType": "ChallengeBurnBushesRules",
+      "par": 50,
+      "targets": {
+        "great": 50,
+        "masterful": 25
+      },
+      "tierLabels": {
+        "cleared": "Cleared",
+        "great": "Great Score",
+        "masterful": "Masterful Score"
+      },
+      "tierIcons": {
+        "cleared": "SI_challenge_cleared",
+        "great": "SI_challenge_great",
+        "masterful": "SI_challenge_masterful"
+      }
+    },
+    {
+      "id": "Challenge5",
+      "scene": "Challenge5",
+      "name": "Whack-a-Moai",
+      "scoringMode": "Timed",
+      "rulesType": "ChallengeWhackAMoaiRules",
+      "par": 100,
+      "targets": {
+        "great": 100,
+        "masterful": 50
+      },
+      "tierLabels": {
+        "cleared": "Cleared",
+        "great": "Great Score",
+        "masterful": "Masterful Score"
+      },
+      "tierIcons": {
+        "cleared": "SI_challenge_cleared",
+        "great": "SI_challenge_great",
+        "masterful": "SI_challenge_masterful"
+      }
+    }
+  ]
+}
