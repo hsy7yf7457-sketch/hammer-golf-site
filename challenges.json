@@ -1,13 +1,13 @@
 {
   "defaultScene": "Challenge5",
   "schedule": [
+    "Challenge5",
     "Challenge1",
     "Challenge2",
-    "Challenge1",
-    "Challenge1",
-    "Challenge1",
-    "Challenge1",
-    "Challenge1"
+    "Challenge3",
+    "Challenge4",
+    "Challenge2",
+    "Challenge4"
   ],
   "challenges": [
     {
@@ -16,10 +16,10 @@
       "name": "Destruction Derby",
       "scoringMode": "Timed",
       "rulesType": "ChallengeDestructionDerbyRules",
-      "par": 50,
+      "par": 30,
       "targets": {
-        "great": 50,
-        "masterful": 30
+        "great": 30,
+        "masterful": 10
       },
       "tierLabels": {
         "cleared": "Cleared",
